@@ -6,7 +6,6 @@
 #include "MinersWife.h"
 #include "EntityManager.h"
 #include "MessageDispatcher.h"
-#include "misc/ConsoleUtils.h"
 #include "EntityNames.h"
 
 
@@ -48,9 +47,8 @@ int main()
   delete Bob;
   delete Elsa;
 
-  //wait for a keypress before exiting
-  PressAnyKeyToContinue();
-
+  //wait for a keypress before exitin
+  
 
   return 0;
 }

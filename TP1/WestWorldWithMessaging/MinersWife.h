@@ -12,14 +12,14 @@
 
 #include <string>
 
-#include "fsm/State.h"
+#include "/Documents/Projet/intelligenceartificielle/Common/fsm/State.h"
 #include "BaseGameEntity.h"
 #include "Locations.h"
 #include "MinersWifeOwnedStates.h"
-#include "misc/ConsoleUtils.h"
+#include "/Documents/Projet/intelligenceartificielle/Common/misc/ConsoleUtils.h"
 #include "Miner.h"
-#include "fsm/StateMachine.h"
-#include "misc/Utils.h"
+#include "/Documents/Projet/intelligenceartificielle/Common/fsm/StateMachine.h"
+#include "/Documents/Projet/intelligenceartificielle/Common/misc/Utils.h"
 
 
 

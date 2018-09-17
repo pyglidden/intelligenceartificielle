@@ -15,9 +15,9 @@
 
 #include "BaseGameEntity.h"
 #include "Locations.h"
-#include "misc/ConsoleUtils.h"
+#include "/Documents/Projet/intelligenceartificielle/Common/misc/ConsoleUtils.h"
 #include "MinerOwnedStates.h"
-#include "fsm/StateMachine.h"
+#include "/Documents/Projet/intelligenceartificielle/Common/fsm/StateMachine.h"
 
 class State;
 struct Telegram;

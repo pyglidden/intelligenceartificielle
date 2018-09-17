@@ -9,7 +9,7 @@
 //  Author: Mat Buckland 2002 (fup@ai-junkie.com)
 //
 //------------------------------------------------------------------------
-#include "fsm/State.h"
+#include "/Documents/Projet/intelligenceartificielle/Common/fsm/State.h"
 
 class MinersWife;
 
