@@ -3,7 +3,7 @@
 *.dsw
 *.mak
 *.sln
-*.vcxproj
+*.exe
 *.vcxproj.filters
 *.vcxproj.user
 *.htm    
@@ -17,5 +17,6 @@
 *.db
 *.suo
 *.sqlite
-
+Debug/
+.vs/
    
