@@ -19,6 +19,69 @@ extern std::ofstream os;
 #endif
 
 
+//------------------------------------------------------------------------methods for Fight
+Fight* Fight::Instance()
+{
+	static Fight instance;
+
+	return &instance;
+}
+
+
+void Fight::Enter(Miner* pMiner)
+{
+	//if the miner is not already located at the bar
+
+	//TODO vérifier si le soulard est au bar
+
+	/*
+	if (pMiner->Location() != saloon)
+	{
+		cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "Walkin' to the goldmine";
+
+		pMiner->ChangeLocation(goldmine);
+	}
+	*/
+}
+
+
+void Fight::Execute(Miner* pMiner)
+{
+	//Remove one gold to the soulard
+	pMiner->AddToGoldCarried(-1);
+
+	pMiner->IncreaseFatigue();
+
+	cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "Fighting with soulard, I lost a gold ore";
+
+	//if enough gold mined, go and put it in the bank
+	if (pMiner->Fatigued())
+	{
+		pMiner->GetFSM()->ChangeState(GoHomeAndSleepTilRested::Instance());
+	}
+}
+
+
+void Fight::Exit(Miner* pMiner)
+{
+	if (pMiner->Fatigued())
+	{
+		cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": "
+			<< "I'm exausted and i lost the battle... I'm going home";
+	}
+
+}
+
+
+bool Fight::OnMessage(Miner* pMiner, const Telegram& msg)
+{
+	//send msg to global message handler
+	return false;
+}
+
+//------------------------------------------------------------------------methods for Fight
+
+
 //------------------------------------------------------------------------methods for EnterMineAndDigForNugget
 EnterMineAndDigForNugget* EnterMineAndDigForNugget::Instance()
 {
@@ -245,12 +308,32 @@ void QuenchThirst::Execute(Miner* pMiner)
 
 void QuenchThirst::Exit(Miner* pMiner)
 { 
+	//TODO changer pour afficher si le prochain etats n'Est pas fight
   cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "Leaving the saloon, feelin' good";
 }
 
 
 bool QuenchThirst::OnMessage(Miner* pMiner, const Telegram& msg)
 {
+	SetTextColor(BACKGROUND_RED | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
+	switch (msg.Msg)
+	{
+	case Msg_LetsFight:
+
+		cout << "\nMessage handled by " << GetNameOfEntity(pMiner->ID())
+			<< " at time: ";// << Clock->GetCurrentTime();
+
+		SetTextColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+
+		cout << "\n" << GetNameOfEntity(pMiner->ID())
+			<< ": Okay Bring it scum bag!!";
+
+		pMiner->GetFSM()->ChangeState(Fight::Instance());
+
+		return true;
+
+	}//end switch
   //send msg to global message handler
   return false;
 }

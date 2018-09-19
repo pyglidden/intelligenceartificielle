@@ -17,6 +17,37 @@ class Miner;
 struct Telegram;
 
 
+//------------------------------------------------------------------------
+//
+//  In this state the miner will walk to a goldmine and pick up a nugget
+//  of gold. If the miner already has a nugget of gold he'll change state
+//  to VisitBankAndDepositGold. If he gets thirsty he'll change state
+//  to QuenchThirst
+//------------------------------------------------------------------------
+class Fight : public State<Miner>
+{
+private:
+
+	Fight() {}
+
+	//copy ctor and assignment should be private
+	Fight(const Fight&);
+	Fight& operator=(const Fight&);
+
+public:
+
+	//this is a singleton
+	static Fight* Instance();
+
+	virtual void Enter(Miner* miner);
+
+	virtual void Execute(Miner* miner);
+
+	virtual void Exit(Miner* miner);
+
+	virtual bool OnMessage(Miner* agent, const Telegram& msg);
+
+};
 
 
 //------------------------------------------------------------------------
