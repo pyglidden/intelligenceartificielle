@@ -33,18 +33,6 @@ void Fight::Enter(Miner* pMiner)
 
 	cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "Okay let's fight!";
 
-	//if the miner is not already located at the bar
-
-	//TODO vérifier si le soulard est au bar
-
-	/*
-	if (pMiner->Location() != saloon)
-	{
-		cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "Walkin' to the goldmine";
-
-		pMiner->ChangeLocation(goldmine);
-	}
-	*/
 }
 
 

@@ -1,5 +1,6 @@
 #include <fstream>
 #include <time.h>
+#include <thread>         // std::thread
 
 #include "Locations.h"
 #include "Miner.h"
@@ -28,11 +29,37 @@ int main()
   //create his wife
   MinersWife* Elsa = new MinersWife(ent_Elsa);
 
+  //TODO: create soulard
+  //Soulard* Jack = new Soulard(ent_Soulard);
+
   //register them with the entity manager
+  //TODO: register soulard
   EntityMgr->RegisterEntity(Bob);
   EntityMgr->RegisterEntity(Elsa);
+  //EntityMgr->RegisterEntity(Soulard);
+
+  //TODO: thread ici!!!
+  /*
+  for (int i = 0; i < 30; ++i)
+  {
+	  std::thread first(MinerThread, Bob);
+	  std::thread second(MinersWifeThread, Elsa);
+	  std::thread third(SoulardThread, Jack);
+	  //Threads now runs concurrently
+
+	  //pauses until other threads to finish
+	  first.join();
+	  second.join();
+	  third.join();
+
+	  Dispatch->DispatchDelayedMessages();
+
+	  Sleep(800);
+  }
+  */
 
   //run Bob and Elsa through a few Update calls
+  //TODO: retirer après que les thread soit fait
   for (int i=0; i<30; ++i)
   { 
     Bob->Update();
@@ -45,8 +72,10 @@ int main()
   }
 
   //tidy up
+  //TODO: delete soulard
   delete Bob;
   delete Elsa;
+  //delete Jack;
 
   //wait for a keypress before exiting
   PressAnyKeyToContinue();
@@ -56,6 +85,23 @@ int main()
 }
 
 
+void MinerThread(Miner* Bob)
+{
+		Bob->Update();
+}
+
+void MinersWifeThread(MinersWife* Elsa)
+{
+		Elsa->Update();
+}
+
+/*
+//Soulard Thread
+void SoulardThread(Soulard* Jack)
+{
+		Jack->Update();
+}
+*/
 
 
 
