@@ -94,6 +94,7 @@ public:
   bool          PocketsFull()const{return m_iGoldCarried >= MaxNuggets;}
 
   bool          Fatigued()const;
+  bool			MoneyAvailable()const;
   void          DecreaseFatigue(){m_iFatigue -= 1;}
   void          IncreaseFatigue(){m_iFatigue += 1;}
 

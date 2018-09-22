@@ -38,6 +38,17 @@ bool Miner::Thirsty()const
   return false;
 }
 
+bool Miner::MoneyAvailable()const
+{
+
+	if (m_iGoldCarried > 0) {
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 bool Miner::Fatigued()const
 {
   if (m_iFatigue > TirednessThreshold)

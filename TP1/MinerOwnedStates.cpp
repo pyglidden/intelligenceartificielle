@@ -30,6 +30,9 @@ Fight* Fight::Instance()
 
 void Fight::Enter(Miner* pMiner)
 {
+
+	cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "Okay let's fight!";
+
 	//if the miner is not already located at the bar
 
 	//TODO vérifier si le soulard est au bar
@@ -47,17 +50,33 @@ void Fight::Enter(Miner* pMiner)
 
 void Fight::Execute(Miner* pMiner)
 {
-	//Remove one gold to the soulard
-	pMiner->AddToGoldCarried(-1);
+	//Remove one gold to the soulard if Miner has gold
+	if (pMiner->MoneyAvailable()) {
+		pMiner->AddToGoldCarried(-1);
+		cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "You stole one of my gold ore!";
+		Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
+			pMiner->ID(),        //ID of sender
+			ent_Soulard,            //ID of recipient
+			Msg_GoldGiven,   //the message
+			NO_ADDITIONAL_INFO);
+	}else {
+		cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "I don't have any more gold!";
+	}
 
+	//miner get more fatigue by fighting
 	pMiner->IncreaseFatigue();
 
-	cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "Fighting with soulard, I lost a gold ore";
+	cout << "\n" << GetNameOfEntity(pMiner->ID()) << ": " << "I'm getting tired";
 
-	//if enough gold mined, go and put it in the bank
+	//if too fatigued, lose the fight and go home
 	if (pMiner->Fatigued())
 	{
 		pMiner->GetFSM()->ChangeState(GoHomeAndSleepTilRested::Instance());
+		Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
+			pMiner->ID(),        //ID of sender
+			ent_Soulard,            //ID of recipient
+			Msg_Boblose,   //the message
+			NO_ADDITIONAL_INFO);
 	}
 }
 
@@ -75,6 +94,26 @@ void Fight::Exit(Miner* pMiner)
 
 bool Fight::OnMessage(Miner* pMiner, const Telegram& msg)
 {
+	SetTextColor(BACKGROUND_RED | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
+	switch (msg.Msg)
+	{
+	case Msg_Soulardlose:
+
+		cout << "\nMessage handled by " << GetNameOfEntity(pMiner->ID())
+			<< " at time: ";// << Clock->GetCurrentTime();
+
+		SetTextColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+
+		cout << "\n" << GetNameOfEntity(pMiner->ID())
+			<< ": HA! No one can beat me!";
+
+		pMiner->GetFSM()->ChangeState(GoHomeAndSleepTilRested::Instance());
+
+		return true;
+
+	}//end switch
+
 	//send msg to global message handler
 	return false;
 }
