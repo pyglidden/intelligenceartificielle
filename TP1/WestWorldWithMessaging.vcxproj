@@ -125,6 +125,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BaseGameEntity.cpp" />
+    <ClCompile Include="Drunker.cpp" />
+    <ClCompile Include="DrunkerOwnedStates.cpp" />
     <ClCompile Include="EntityManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MessageDispatcher.cpp" />
@@ -138,6 +140,8 @@
     <ClInclude Include="..\..\Common\FSM\StateMachine.h" />
     <ClInclude Include="..\..\Common\Messaging\Telegram.h" />
     <ClInclude Include="BaseGameEntity.h" />
+    <ClInclude Include="Drunker.h" />
+    <ClInclude Include="DrunkerOwnedStates.h" />
     <ClInclude Include="EntityManager.h" />
     <ClInclude Include="EntityNames.h" />
     <ClInclude Include="Locations.h" />

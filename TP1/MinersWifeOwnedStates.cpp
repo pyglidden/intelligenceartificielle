@@ -41,25 +41,27 @@ bool WifesGlobalState::OnMessage(MinersWife* wife, const Telegram& msg)
 {
   SetTextColor(BACKGROUND_RED|FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
 
-  switch(msg.Msg)
+  switch (msg.Msg)
   {
+	  /*
   case Msg_HiHoneyImHome:
    {
 	  cout << "\nMessage handled by " << GetNameOfEntity(wife->ID()) << " at time: ";
-       //<< Clock->GetCurrentTime();
+	   //<< Clock->GetCurrentTime();
 
-     SetTextColor(FOREGROUND_GREEN|FOREGROUND_INTENSITY);
+	 SetTextColor(FOREGROUND_GREEN|FOREGROUND_INTENSITY);
 
-     cout << "\n" << GetNameOfEntity(wife->ID()) << 
-          ": Hi honey. Let me make you some of mah fine country stew";
+	 cout << "\n" << GetNameOfEntity(wife->ID()) <<
+		  ": Hi honey. Let me make you some of mah fine country stew";
 
-     wife->GetFSM()->ChangeState(CookStew::Instance());
+	 wife->GetFSM()->ChangeState(CookStew::Instance());
    }
 
    return true;
 
   }//end switch
-
+  */
+  }
   return false;
 }
 
@@ -166,13 +168,15 @@ void CookStew::Enter(MinersWife* wife)
   
     //send a delayed message myself so that I know when to take the stew
     //out of the oven
-    Dispatch->DispatchMessage(1.5,                  //time delay
+    /*
+	Dispatch->DispatchMessage(1.5,                  //time delay
                               wife->ID(),           //sender ID
                               wife->ID(),           //receiver ID
                               Msg_StewReady,        //msg
                               NO_ADDITIONAL_INFO); 
 
     wife->SetCooking(true);
+	*/
   }
 }
 
@@ -194,7 +198,7 @@ bool CookStew::OnMessage(MinersWife* wife, const Telegram& msg)
 {
   SetTextColor(BACKGROUND_RED|FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
 
-  switch(msg.Msg)
+  /*switch(msg.Msg)
   {
     case Msg_StewReady:
     {
@@ -215,10 +219,10 @@ bool CookStew::OnMessage(MinersWife* wife, const Telegram& msg)
 
       wife->GetFSM()->ChangeState(DoHouseWork::Instance());               
     }
-
+	
     return true;
 
-  }//end switch
+  }//end switch*/
 
   return false;
 }
