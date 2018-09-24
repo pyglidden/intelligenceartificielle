@@ -171,6 +171,21 @@ bool PlayCoinMachine::OnMessage(Drunker* pDrunker, const Telegram& msg)
 
 	switch (msg.Msg)
 	{
+
+	case Msg_NotAvailable:
+
+		cout << "\nMessage handled by " << GetNameOfEntity(pDrunker->ID())
+			<< " at time: ";// << Clock->GetCurrentTime();
+
+		SetTextColor(FOREGROUND_BLUE | FOREGROUND_INTENSITY);
+
+		cout << "\n" << GetNameOfEntity(pDrunker->ID())
+			<< ": CRAP! I'm alone...";
+
+		pDrunker->GetFSM()->ChangeState(StealForNugget::Instance());
+
+		return true;
+
 	case Msg_AcceptFight:
 
 		cout << "\nMessage handled by " << GetNameOfEntity(pDrunker->ID())

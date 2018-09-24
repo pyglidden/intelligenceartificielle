@@ -170,8 +170,31 @@ void EnterMineAndDigForNugget::Exit(Miner* pMiner)
 
 bool EnterMineAndDigForNugget::OnMessage(Miner* pMiner, const Telegram& msg)
 {
-  //send msg to global message handler
-  return false;
+	SetTextColor(BACKGROUND_RED | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
+	switch (msg.Msg)
+	{
+	case Msg_LetsFight:
+
+		cout << "\nMessage handled by " << GetNameOfEntity(pMiner->ID())
+			<< " at time: ";// << Clock->GetCurrentTime();
+
+		SetTextColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+
+		cout << "\n" << GetNameOfEntity(pMiner->ID())
+			<< ": I'm not event at the saloon idiot!";
+
+		Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
+			pMiner->ID(),        //ID of sender
+			ent_Soulard,         //ID of recipient
+			Msg_NotAvailable,		   //the message
+			NO_ADDITIONAL_INFO);
+
+		return true;
+
+	}//end switch
+	 //send msg to global message handler
+	return false;
 }
 
 //------------------------------------------------------------------------methods for VisitBankAndDepositGold
@@ -230,8 +253,31 @@ void VisitBankAndDepositGold::Exit(Miner* pMiner)
 
 bool VisitBankAndDepositGold::OnMessage(Miner* pMiner, const Telegram& msg)
 {
-  //send msg to global message handler
-  return false;
+	SetTextColor(BACKGROUND_RED | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
+	switch (msg.Msg)
+	{
+	case Msg_LetsFight:
+
+		cout << "\nMessage handled by " << GetNameOfEntity(pMiner->ID())
+			<< " at time: ";// << Clock->GetCurrentTime();
+
+		SetTextColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+
+		cout << "\n" << GetNameOfEntity(pMiner->ID())
+			<< ": I'm not event at the saloon idiot!";
+
+		Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
+			pMiner->ID(),        //ID of sender
+			ent_Soulard,         //ID of recipient
+			Msg_NotAvailable,		   //the message
+			NO_ADDITIONAL_INFO);
+
+		return true;
+
+	}//end switch
+	 //send msg to global message handler
+	return false;
 }
 //------------------------------------------------------------------------methods for GoHomeAndSleepTilRested
 
@@ -285,6 +331,31 @@ void GoHomeAndSleepTilRested::Exit(Miner* pMiner)
 
 bool GoHomeAndSleepTilRested::OnMessage(Miner* pMiner, const Telegram& msg)
 {
+
+	SetTextColor(BACKGROUND_RED | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
+	switch (msg.Msg)
+	{
+	case Msg_LetsFight:
+
+		cout << "\nMessage handled by " << GetNameOfEntity(pMiner->ID())
+			<< " at time: ";// << Clock->GetCurrentTime();
+
+		SetTextColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+
+		cout << "\n" << GetNameOfEntity(pMiner->ID())
+			<< ": I'm not event at the saloon idiot!";
+
+		Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
+			pMiner->ID(),        //ID of sender
+			ent_Soulard,         //ID of recipient
+			Msg_NotAvailable,		   //the message
+			NO_ADDITIONAL_INFO);
+
+		return true;
+
+	}//end switch
+
    /*SetTextColor(BACKGROUND_RED|FOREGROUND_RED|FOREGROUND_GREEN|FOREGROUND_BLUE);
 
    switch(msg.Msg)
@@ -395,8 +466,31 @@ void EatStew::Exit(Miner* pMiner)
 
 bool EatStew::OnMessage(Miner* pMiner, const Telegram& msg)
 {
-  //send msg to global message handler
-  return false;
+	SetTextColor(BACKGROUND_RED | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
+	switch (msg.Msg)
+	{
+	case Msg_LetsFight:
+
+		cout << "\nMessage handled by " << GetNameOfEntity(pMiner->ID())
+			<< " at time: ";// << Clock->GetCurrentTime();
+
+		SetTextColor(FOREGROUND_RED | FOREGROUND_INTENSITY);
+
+		cout << "\n" << GetNameOfEntity(pMiner->ID())
+			<< ": I'm not event at the saloon idiot!";
+
+		Dispatch->DispatchMessage(SEND_MSG_IMMEDIATELY, //time delay
+			pMiner->ID(),        //ID of sender
+			ent_Soulard,         //ID of recipient
+			Msg_NotAvailable,		   //the message
+			NO_ADDITIONAL_INFO);
+
+		return true;
+
+	}//end switch
+	 //send msg to global message handler
+	return false;
 }
 
 

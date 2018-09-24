@@ -13,6 +13,7 @@ enum message_type
   Msg_Soulardlose,
   Msg_GoldGiven,
   Msg_GoldStolen,
+  Msg_NotAvailable,
   Msg_Nothandle
 };
 
@@ -52,6 +53,10 @@ inline std::string MsgToStr(int msg)
   case 7:
 
 	  return "GoldStolen";
+
+  case 8:
+
+	  return "NotAvailable";
 
   default:
 
