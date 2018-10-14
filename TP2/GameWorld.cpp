@@ -243,6 +243,7 @@ void GameWorld::SetCrosshair(POINTS p)
   }
   m_vCrosshair.x = (double)p.x;
   m_vCrosshair.y = (double)p.y;
+
 }
 
 
@@ -531,6 +532,17 @@ void GameWorld::Render()
   for (unsigned int ob=0; ob<m_Obstacles.size(); ++ob)
   {
     gdi->Circle(m_Obstacles[ob]->Pos(), m_Obstacles[ob]->BRadius());
+  }
+
+ gdi->RedPen();
+
+  for (unsigned int ob = 0; ob < m_Obstacles.size(); ++ob)
+  {
+	  gdi->RedPen();
+	  gdi->Circle(m_vCrosshair, 4);
+	  gdi->Line(m_vCrosshair.x - 8, m_vCrosshair.y, m_vCrosshair.x + 8, m_vCrosshair.y);
+	  gdi->Line(m_vCrosshair.x, m_vCrosshair.y - 8, m_vCrosshair.x, m_vCrosshair.y + 8);
+	  gdi->TextAtPos(5, cyClient() - 20, "Click to move crosshair");
   }
 
   //render the agents

@@ -12,6 +12,9 @@
 #include "resource.h"
 #include "../Common/misc/WindowUtils.h"
 
+#include <iostream>
+#include <string>
+
 //--------------------------------- Globals ------------------------------
 //
 //------------------------------------------------------------------------
@@ -101,6 +104,14 @@ LRESULT CALLBACK WindowProc (HWND   hwnd,
     case WM_LBUTTONUP:
     {
       g_GameWorld->SetCrosshair(MAKEPOINTS(lParam));
+	  //TODO: ICI ON PROG SOURIS POUR LA DIRECTION DE LAGENT LEADER BITCH
+	  POINT pt;
+	  GetCursorPos(&pt);
+	  int x = pt.x;
+	  int y = pt.y;
+	  std::string s = std::to_string(x);
+	  std::cout << "y: " << std::to_string(y);
+	  OutputDebugString(s.c_str());
     }
     
     break;
