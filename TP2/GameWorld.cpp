@@ -12,82 +12,138 @@
 #include "../Common/misc/WindowUtils.h"
 #include "../Common/misc/Stream_Utility_Functions.h"
 
-
 #include "resource.h"
 
 #include <list>
 using std::list;
 
 
+#include "Leader.h"
+#include "Follower.h"
+
+
 //------------------------------- ctor -----------------------------------
 //------------------------------------------------------------------------
-GameWorld::GameWorld(int cx, int cy):
+GameWorld::GameWorld(int cx, int cy) :
 
-            m_cxClient(cx),
-            m_cyClient(cy),
-            m_bPaused(false),
-            m_vCrosshair(Vector2D(cxClient()/2.0, cxClient()/2.0)),
-            m_bShowWalls(false),
-            m_bShowObstacles(false),
-            m_bShowPath(false),
-            m_bShowWanderCircle(false),
-            m_bShowSteeringForce(false),
-            m_bShowFeelers(false),
-            m_bShowDetectionBox(false),
-            m_bShowFPS(true),
-            m_dAvFrameTime(0),
-            m_pPath(NULL),
-            m_bRenderNeighbors(false),
-            m_bViewKeys(false),
-            m_bShowCellSpaceInfo(false)
+	m_cxClient(cx),
+	m_cyClient(cy),
+	m_bPaused(false),
+	m_vCrosshair(Vector2D(cxClient() / 2.0, cxClient() / 2.0)),
+	m_bShowWalls(false),
+	m_bShowObstacles(false),
+	m_bShowPath(false),
+	m_bShowWanderCircle(false),
+	m_bShowSteeringForce(false),
+	m_bShowFeelers(false),
+	m_bShowDetectionBox(false),
+	m_bShowFPS(true),
+	m_dAvFrameTime(0),
+	m_pPath(NULL),
+	m_bRenderNeighbors(false),
+	m_bViewKeys(false),
+	m_bShowCellSpaceInfo(false)
 {
 
-  //setup the spatial subdivision class
-  m_pCellSpace = new CellSpacePartition<Vehicle*>((double)cx, (double)cy, Prm.NumCellsX, Prm.NumCellsY, Prm.NumAgents);
+	//setup the spatial subdivision class
+	m_pCellSpace = new CellSpacePartition<Vehicle*>((double)cx, (double)cy, Prm.NumCellsX, Prm.NumCellsY, Prm.NumAgents);
 
-  double border = 30;
-  m_pPath = new Path(5, border, border, cx-border, cy-border, true); 
-
-  //setup the agents
-  for (int a=0; a<Prm.NumAgents; ++a)
-  {
-
-    //determine a random starting position
-    Vector2D SpawnPos = Vector2D(cx/2.0+RandomClamped()*cx/2.0,
-                                 cy/2.0+RandomClamped()*cy/2.0);
+	double border = 30;
+	m_pPath = new Path(5, border, border, cx - border, cy - border, true);
 
 
-    Vehicle* pVehicle = new Vehicle(this,
-                                    SpawnPos,                 //initial position
-                                    RandFloat()*TwoPi,        //start rotation
-                                    Vector2D(0,0),            //velocity
-                                    Prm.VehicleMass,          //mass
-                                    Prm.MaxSteeringForce,     //max force
-                                    Prm.MaxSpeed,             //max velocity
-                                    Prm.MaxTurnRatePerSecond, //max turn rate
-                                    Prm.VehicleScale);        //scale
+	//determine a random starting position
+	Vector2D LeaderSpawnPos = Vector2D(cx / 2.0 + RandomClamped()*cx / 2.0,
+		cy / 2.0 + RandomClamped()*cy / 2.0);
 
-    pVehicle->Steering()->FlockingOn();
+	//setup leader
+	Leader* pLeader = new Leader(this,
+		LeaderSpawnPos,                 //initial position
+		RandFloat()*TwoPi,        //start rotation
+		Vector2D(0, 0),            //velocity
+		Prm.VehicleMass,          //mass
+		Prm.MaxSteeringForce,     //max force
+		Prm.MaxSpeed,             //max velocity
+		Prm.MaxTurnRatePerSecond, //max turn rate
+		Prm.VehicleScale);        //scale);
 
-    m_Vehicles.push_back(pVehicle);
+	m_pCellSpace->AddEntity(pLeader);
+	m_Leader = pLeader;
 
-    //add it to the cell subdivision
-    m_pCellSpace->AddEntity(pVehicle);
-  }
+	//setup the agents
+	for (int a = 0; a < Prm.NumAgents; ++a)
+	{
+
+		//determine a random starting position
+		Vector2D SpawnPos = Vector2D(cx / 2.0 + RandomClamped()*cx / 2.0,
+			cy / 2.0 + RandomClamped()*cy / 2.0);
+
+		Follower* pFollower = new Follower(this,
+			SpawnPos,                 //initial position
+			RandFloat()*TwoPi,        //start rotation
+			Vector2D(0, 0),            //velocity
+			Prm.VehicleMass,          //mass
+			Prm.MaxSteeringForce,     //max force
+			Prm.MaxSpeed,             //max velocity
+			Prm.MaxTurnRatePerSecond, //max turn rate
+			Prm.VehicleScale);        //scale
+
+		pFollower->Steering()->FlockingOff();
+		pFollower->Steering()->ObstacleAvoidanceOn();
+		pFollower->Steering()->WallAvoidanceOn();
+
+		m_Followers.push_back(pFollower);
+
+		//add it to the cell subdivision
+		m_pCellSpace->AddEntity(pFollower);
+	}
 
 
 #define SHOAL
 #ifdef SHOAL
-  m_Vehicles[Prm.NumAgents-1]->Steering()->FlockingOff();
-  m_Vehicles[Prm.NumAgents-1]->SetScale(Vector2D(10, 10));
-  m_Vehicles[Prm.NumAgents-1]->Steering()->WanderOn();
-  m_Vehicles[Prm.NumAgents-1]->SetMaxSpeed(70);
 
+  m_Leader->Steering()->FlockingOff();
+  m_Leader->Steering()->ObstacleAvoidanceOn();
+  m_Leader->Steering()->WallAvoidanceOn();
+  m_Leader->SetScale(Vector2D(10, 10));
+  m_Leader->Steering()->SeekOn();
+  m_Leader->SetMaxSpeed(10);
 
-   for (int i=0; i<Prm.NumAgents-1; ++i)
+	//Set first follower
+  int x = -30, y = 0;
+  int row = 1;
+  //m_Followers[0]->Steering()->OffsetPursuitOn(m_Leader, Vector2D(x, y));
+
+  int prev = 0;
+
+  for (int i=0; i<Prm.NumAgents; ++i)
   {
-    m_Vehicles[i]->Steering()->EvadeOn(m_Vehicles[Prm.NumAgents-1]);
+	  m_Followers[i]->Steering()->CohesionOn();
+	  m_Followers[i]->Steering()->AlignmentOn();
+	  m_Followers[i]->Steering()->SeparationOn();
+	  
+	  int sign = 1;
+	  int modulo = i % 2;
+	  if (modulo != 0) {
+		  sign = -1;
+	  }
+	  else {
+		  sign = 1;
+	  }
 
+	  if (i > 1) {
+		  if (sign < 0) {
+			  m_Followers[i]->Steering()->OffsetPursuitOn(m_Leader, Vector2D(x*row, y - (20 * row)));
+			  row++;
+		  }else if (sign > 0)
+			  m_Followers[i]->Steering()->OffsetPursuitOn(m_Leader, Vector2D(x*row, y + (20 * row)));
+	  } else {
+		  if (sign < 0) {
+			  m_Followers[i]->Steering()->OffsetPursuitOn(m_Leader, Vector2D(x*row, y - 20));
+			  row++;
+		  } else if (sign > 0)
+			  m_Followers[i]->Steering()->OffsetPursuitOn(m_Leader, Vector2D(x*row, y + 20));
+	  }
   }
 #endif
  
@@ -101,9 +157,9 @@ GameWorld::GameWorld(int cx, int cy):
 //------------------------------------------------------------------------
 GameWorld::~GameWorld()
 {
-  for (unsigned int a=0; a<m_Vehicles.size(); ++a)
+  for (unsigned int a=0; a< m_Followers.size(); ++a)
   {
-    delete m_Vehicles[a];
+    delete m_Followers[a];
   }
 
   for (unsigned int ob=0; ob<m_Obstacles.size(); ++ob)
@@ -112,10 +168,9 @@ GameWorld::~GameWorld()
   }
 
   delete m_pCellSpace;
-  
+  delete m_Leader;
   delete m_pPath;
 }
-
 
 //----------------------------- Update -----------------------------------
 //------------------------------------------------------------------------
@@ -129,11 +184,13 @@ void GameWorld::Update(double time_elapsed)
 
   m_dAvFrameTime = FrameRateSmoother.Update(time_elapsed);
   
+  //update leader
+  m_Leader->Update(time_elapsed);
 
   //update the vehicles
-  for (unsigned int a=0; a<m_Vehicles.size(); ++a)
+  for (unsigned int a=0; a< m_Followers.size(); ++a)
   {
-    m_Vehicles[a]->Update(time_elapsed);
+	  m_Followers[a]->Update(time_elapsed);
   }
 }
   
@@ -259,9 +316,9 @@ void GameWorld::HandleKeyPresses(WPARAM wParam)
       double border = 60;
       m_pPath = new Path(RandInt(3, 7), border, border, cxClient()-border, cyClient()-border, true); 
       m_bShowPath = true; 
-      for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+      for (unsigned int i=0; i< m_Followers.size(); ++i)
       {
-        m_Vehicles[i]->Steering()->SetPath(m_pPath->GetPath());
+		  m_Followers[i]->Steering()->SetPath(m_pPath->GetPath());
       }
     }
     break;
@@ -277,9 +334,9 @@ void GameWorld::HandleKeyPresses(WPARAM wParam)
     case 'I':
 
       {
-        for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+        for (unsigned int i=0; i< m_Followers.size(); ++i)
         {
-          m_Vehicles[i]->ToggleSmoothing();
+			m_Followers[i]->ToggleSmoothing();
         }
 
       }
@@ -294,18 +351,18 @@ void GameWorld::HandleKeyPresses(WPARAM wParam)
         {
           m_Obstacles.clear();
 
-          for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+          for (unsigned int i=0; i< m_Followers.size(); ++i)
           {
-            m_Vehicles[i]->Steering()->ObstacleAvoidanceOff();
+			  m_Followers[i]->Steering()->ObstacleAvoidanceOff();
           }
         }
         else
         {
           CreateObstacles();
 
-          for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+          for (unsigned int i=0; i< m_Followers.size(); ++i)
           {
-            m_Vehicles[i]->Steering()->ObstacleAvoidanceOn();
+			  m_Followers[i]->Steering()->ObstacleAvoidanceOn();
           }
         }
         break;
@@ -328,9 +385,9 @@ void GameWorld::HandleMenuItems(WPARAM wParam, HWND hwnd)
         {
           m_Obstacles.clear();
 
-          for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+          for (unsigned int i=0; i< m_Followers.size(); ++i)
           {
-            m_Vehicles[i]->Steering()->ObstacleAvoidanceOff();
+			  m_Followers[i]->Steering()->ObstacleAvoidanceOff();
           }
 
           //uncheck the menu
@@ -340,9 +397,9 @@ void GameWorld::HandleMenuItems(WPARAM wParam, HWND hwnd)
         {
           CreateObstacles();
 
-          for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+          for (unsigned int i=0; i< m_Followers.size(); ++i)
           {
-            m_Vehicles[i]->Steering()->ObstacleAvoidanceOn();
+			  m_Followers[i]->Steering()->ObstacleAvoidanceOn();
           }
 
           //check the menu
@@ -359,9 +416,9 @@ void GameWorld::HandleMenuItems(WPARAM wParam, HWND hwnd)
       {
         CreateWalls();
 
-        for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+        for (unsigned int i=0; i< m_Followers.size(); ++i)
         {
-          m_Vehicles[i]->Steering()->WallAvoidanceOn();
+          m_Followers[i]->Steering()->WallAvoidanceOn();
         }
 
         //check the menu
@@ -372,9 +429,9 @@ void GameWorld::HandleMenuItems(WPARAM wParam, HWND hwnd)
       {
         m_Walls.clear();
 
-        for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+        for (unsigned int i=0; i<m_Followers.size(); ++i)
         {
-          m_Vehicles[i]->Steering()->WallAvoidanceOff();
+          m_Followers[i]->Steering()->WallAvoidanceOff();
         }
 
         //uncheck the menu
@@ -386,20 +443,20 @@ void GameWorld::HandleMenuItems(WPARAM wParam, HWND hwnd)
 
     case IDR_PARTITIONING:
       {
-        for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+        for (unsigned int i=0; i<m_Followers.size(); ++i)
         {
-          m_Vehicles[i]->Steering()->ToggleSpacePartitioningOnOff();
+          m_Followers[i]->Steering()->ToggleSpacePartitioningOnOff();
         }
 
         //if toggled on, empty the cell space and then re-add all the 
         //vehicles
-        if (m_Vehicles[0]->Steering()->isSpacePartitioningOn())
+        if (m_Followers[0]->Steering()->isSpacePartitioningOn())
         {
           m_pCellSpace->EmptyCells();
        
-          for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+          for (unsigned int i=0; i<m_Followers.size(); ++i)
           {
-            m_pCellSpace->AddEntity(m_Vehicles[i]);
+            m_pCellSpace->AddEntity(m_Followers[i]);
           }
 
           ChangeMenuState(hwnd, IDR_PARTITIONING, MFS_CHECKED);
@@ -423,7 +480,7 @@ void GameWorld::HandleMenuItems(WPARAM wParam, HWND hwnd)
         {
           ChangeMenuState(hwnd, IDM_PARTITION_VIEW_NEIGHBORS, MFS_CHECKED);
 
-          if (!m_Vehicles[0]->Steering()->isSpacePartitioningOn())
+          if (!m_Followers[0]->Steering()->isSpacePartitioningOn())
           {
             SendMessage(hwnd, WM_COMMAND, IDR_PARTITIONING, NULL);
           }
@@ -442,9 +499,9 @@ void GameWorld::HandleMenuItems(WPARAM wParam, HWND hwnd)
         ChangeMenuState(hwnd, IDR_PRIORITIZED, MFS_UNCHECKED);
         ChangeMenuState(hwnd, IDR_DITHERED, MFS_UNCHECKED);
 
-        for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+        for (unsigned int i=0; i<m_Followers.size(); ++i)
         {
-          m_Vehicles[i]->Steering()->SetSummingMethod(SteeringBehavior::weighted_average);
+          m_Followers[i]->Steering()->SetSummingMethod(SteeringBehavior::weighted_average);
         }
       }
 
@@ -456,9 +513,9 @@ void GameWorld::HandleMenuItems(WPARAM wParam, HWND hwnd)
         ChangeMenuState(hwnd, IDR_PRIORITIZED, MFS_CHECKED);
         ChangeMenuState(hwnd, IDR_DITHERED, MFS_UNCHECKED);
 
-        for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+        for (unsigned int i=0; i<m_Followers.size(); ++i)
         {
-          m_Vehicles[i]->Steering()->SetSummingMethod(SteeringBehavior::prioritized);
+          m_Followers[i]->Steering()->SetSummingMethod(SteeringBehavior::prioritized);
         }
       }
 
@@ -470,9 +527,9 @@ void GameWorld::HandleMenuItems(WPARAM wParam, HWND hwnd)
         ChangeMenuState(hwnd, IDR_PRIORITIZED, MFS_UNCHECKED);
         ChangeMenuState(hwnd, IDR_DITHERED, MFS_CHECKED);
 
-        for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+        for (unsigned int i=0; i<m_Followers.size(); ++i)
         {
-          m_Vehicles[i]->Steering()->SetSummingMethod(SteeringBehavior::dithered);
+          m_Followers[i]->Steering()->SetSummingMethod(SteeringBehavior::dithered);
         }
       }
 
@@ -499,12 +556,12 @@ void GameWorld::HandleMenuItems(WPARAM wParam, HWND hwnd)
 
       case ID_MENU_SMOOTHING:
       {
-        for (unsigned int i=0; i<m_Vehicles.size(); ++i)
+        for (unsigned int i=0; i<m_Followers.size(); ++i)
         {
-          m_Vehicles[i]->ToggleSmoothing();
+          m_Followers[i]->ToggleSmoothing();
         }
 
-        CheckMenuItemAppropriately(hwnd, ID_MENU_SMOOTHING, m_Vehicles[0]->isSmoothingOn());
+        CheckMenuItemAppropriately(hwnd, ID_MENU_SMOOTHING, m_Followers[0]->isSmoothingOn());
       }
 
       break;
@@ -545,28 +602,31 @@ void GameWorld::Render()
 	  gdi->TextAtPos(5, cyClient() - 20, "Click to move crosshair");
   }
 
+  //render leader
+  m_Leader->Render();
+
   //render the agents
-  for (unsigned int a=0; a<m_Vehicles.size(); ++a)
+  for (unsigned int a=0; a<m_Followers.size(); ++a)
   {
-    m_Vehicles[a]->Render();  
+    m_Followers[a]->Render();  
     
     //render cell partitioning stuff
     if (m_bShowCellSpaceInfo && a==0)
     {
       gdi->HollowBrush();
-      InvertedAABBox2D box(m_Vehicles[a]->Pos() - Vector2D(Prm.ViewDistance, Prm.ViewDistance),
-                           m_Vehicles[a]->Pos() + Vector2D(Prm.ViewDistance, Prm.ViewDistance));
+      InvertedAABBox2D box(m_Followers[a]->Pos() - Vector2D(Prm.ViewDistance, Prm.ViewDistance),
+                           m_Followers[a]->Pos() + Vector2D(Prm.ViewDistance, Prm.ViewDistance));
       box.Render();
 
       gdi->RedPen();
-      CellSpace()->CalculateNeighbors(m_Vehicles[a]->Pos(), Prm.ViewDistance);
+      CellSpace()->CalculateNeighbors(m_Followers[a]->Pos(), Prm.ViewDistance);
       for (BaseGameEntity* pV = CellSpace()->begin();!CellSpace()->end();pV = CellSpace()->next())
       {
         gdi->Circle(pV->Pos(), pV->BRadius());
       }
       
       gdi->GreenPen();
-      gdi->Circle(m_Vehicles[a]->Pos(), Prm.ViewDistance);
+      gdi->Circle(m_Followers[a]->Pos(), Prm.ViewDistance);
     }
   }  
 

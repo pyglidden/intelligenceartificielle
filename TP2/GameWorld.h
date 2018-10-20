@@ -21,6 +21,8 @@
 #include "BaseGameEntity.h"
 #include "EntityFunctionTemplates.h"
 #include "vehicle.h"
+#include "Follower.h"
+#include "Leader.h"
 
 
 class Obstacle;
@@ -37,6 +39,10 @@ private:
 
   //a container of all the moving entities
   std::vector<Vehicle*>         m_Vehicles;
+
+  std::vector<Follower*>         m_Followers;
+
+  Leader*						m_Leader;
 
   //any obstacles
   std::vector<BaseGameEntity*>  m_Obstacles;
@@ -92,6 +98,7 @@ public:
 
   void  Render();
 
+  void setLeaderSeekOn();
 
   void  NonPenetrationContraint(Vehicle* v){EnforceNonPenetrationConstraint(v, m_Vehicles);}
 

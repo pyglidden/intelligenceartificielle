@@ -57,7 +57,7 @@ LRESULT CALLBACK WindowProc (HWND   hwnd,
 			   RECT rect;
 
 			   GetClientRect(hwnd, &rect);
-
+			  
 			   cxClient = rect.right;
 			   cyClient = rect.bottom;
 
@@ -109,9 +109,10 @@ LRESULT CALLBACK WindowProc (HWND   hwnd,
 	  GetCursorPos(&pt);
 	  int x = pt.x;
 	  int y = pt.y;
-	  std::string s = std::to_string(x);
-	  std::cout << "y: " << std::to_string(y);
-	  OutputDebugString(s.c_str());
+	  OutputDebugString("x: ");
+	  OutputDebugString(std::to_string(x).c_str());
+	  OutputDebugString("\ny: ");
+	  OutputDebugString(std::to_string(y).c_str());
     }
     
     break;
