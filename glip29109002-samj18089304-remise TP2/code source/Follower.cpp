@@ -1,4 +1,4 @@
-#include "Leader.h"
+#include "Follower.h"
 #include "Vehicle.h"
 #include "../Common/2d/C2DMatrix.h"
 #include "../Common/2d/Geometry.h"
@@ -14,7 +14,7 @@ using std::list;
 
 //----------------------------- actor ------------------------------------
 //------------------------------------------------------------------------
-Leader::Leader(GameWorld* world,
+Follower::Follower(GameWorld* world,
 	Vector2D position,
 	double    rotation,
 	Vector2D velocity,
@@ -22,7 +22,7 @@ Leader::Leader(GameWorld* world,
 	double    max_force,
 	double    max_speed,
 	double    max_turn_rate,
-	double    scale): Vehicle(world,
+	double    scale) : Vehicle(world,
 		position,
 		rotation,
 		velocity,
@@ -36,9 +36,8 @@ Leader::Leader(GameWorld* world,
 }
 //---------------------------- dtor -------------------------------------
 //-----------------------------------------------------------------------
-Leader::~Leader()
+Follower::~Follower()
 {
 
 }
-
 
