@@ -13,6 +13,7 @@
 //-----------------------------------------------------------------------------
 #include <map>
 #include "2d/vector2d.h"
+#include "fuzzy\FuzzyModule.h"
 
 class Raven_Bot;
 class Raven_Weapon;
@@ -25,6 +26,9 @@ private:
   
   //a map of weapon instances indexed into by type
   typedef std::map<int, Raven_Weapon*>  WeaponMap;
+
+  FuzzyModule   m_aimFuzzyModule;
+  double m_dLastPrecisionScore ;
 
 private:
 
@@ -108,6 +112,11 @@ public:
 
   void          RenderCurrentWeapon()const;
   void          RenderDesirabilities()const;
+
+  //initialise le module fuzzy pour calculer un petit vecteur de déviation
+  void InitialiserFuzzyModule() ;
+  Vector2D GetDeviation() const ;
+  void SetAccuracy() ;
 };
 
 #endif

@@ -23,6 +23,8 @@ Raven_WeaponSystem::Raven_WeaponSystem(Raven_Bot* owner,
                                                           m_dAimPersistance(AimPersistance)
 {
   Initialize();
+  InitialiserFuzzyModule() ;
+  m_dLastPrecisionScore = 0 ;
 }
 
 //------------------------- dtor ----------------------------------------------
@@ -184,7 +186,9 @@ void Raven_WeaponSystem::TakeAimAndShoot()const
        m_dAimPersistance) )
   {
     //the position the weapon will be aimed at
-    Vector2D AimingPos = m_pOwner->GetTargetBot()->Pos();  // + calculateDeviation() endroit pour placer l'appel au fuzzy module donnant une deviation au tir de 0 à un certain degré
+    Vector2D AimingPos = m_pOwner->GetTargetBot()->Pos();
+	
+
     
     //if the current weapon is not an instant hit type gun the target position
     //must be adjusted to take into account the predicted movement of the 
@@ -192,7 +196,7 @@ void Raven_WeaponSystem::TakeAimAndShoot()const
     if (GetCurrentWeapon()->GetType() == type_rocket_launcher ||
         GetCurrentWeapon()->GetType() == type_blaster)
     {
-      AimingPos = PredictFuturePositionOfTarget();  // + calculateDeviation() endroit pour placer l'appel au fuzzy module donnant une deviation au tir de 0 à un certain degré
+      AimingPos = PredictFuturePositionOfTarget();
 
       //if the weapon is aimed correctly, there is line of sight between the
       //bot and the aiming position and it has been in view for a period longer
@@ -202,7 +206,8 @@ void Raven_WeaponSystem::TakeAimAndShoot()const
             m_dReactionTime) &&
            m_pOwner->hasLOSto(AimingPos) )
       {
-        AddNoiseToAim(AimingPos);
+        //AddNoiseToAim(AimingPos);
+		AimingPos = AimingPos + GetDeviation() ;
 
         GetCurrentWeapon()->ShootAt(AimingPos);
       }
@@ -217,7 +222,8 @@ void Raven_WeaponSystem::TakeAimAndShoot()const
            (m_pOwner->GetTargetSys()->GetTimeTargetHasBeenVisible() >
             m_dReactionTime) )
       {
-        AddNoiseToAim(AimingPos);
+        //AddNoiseToAim(AimingPos);
+		AimingPos = AimingPos + GetDeviation() ;
         
         GetCurrentWeapon()->ShootAt(AimingPos);
       }
@@ -329,4 +335,70 @@ void Raven_WeaponSystem::RenderDesirabilities()const
         offset+=15;
       }
     }
+}
+
+//-------------------------- Fuzzy Module de visée ---------------------------
+//---------------------------------------------------------------------------
+void Raven_WeaponSystem::InitialiserFuzzyModule()
+{
+  FuzzyVariable& DistToTarget = m_aimFuzzyModule.CreateFLV("DistToTarget");
+
+  FzSet& Target_Close = DistToTarget.AddLeftShoulderSet("Target_Close",0,100,250);
+  FzSet& Target_Medium = DistToTarget.AddTriangularSet("Target_Medium",100,250,500);
+  FzSet& Target_Far = DistToTarget.AddRightShoulderSet("Target_Far",250,500,1000);
+
+  FuzzyVariable& Precision = m_aimFuzzyModule.CreateFLV("Precision"); 
+  FzSet& VeryPrecis = Precision.AddRightShoulderSet("VeryPrecis", 50, 75, 100);
+  FzSet& Precis = Precision.AddTriangularSet("Precis", 25, 50, 75);
+  FzSet& Imprecis = Precision.AddLeftShoulderSet("Imprecis", 0, 25, 50);
+
+  FuzzyVariable& HealthLevel = m_aimFuzzyModule.CreateFLV("HealthLevel");
+  FzSet& Healthy = HealthLevel.AddRightShoulderSet("Healthy", 75, 90, 100);
+  FzSet& Fine = HealthLevel.AddTriangularSet("Fine", 50, 75, 90);
+  FzSet& Wounded = HealthLevel.AddTriangularSet("Wounded", 25, 50, 75);
+  FzSet& SeverelyWounded = HealthLevel.AddTriangularSet("SeverelyWounded", 0, 25, 50);
+
+
+  m_aimFuzzyModule.AddRule(FzAND(Target_Close, Healthy), VeryPrecis);
+  m_aimFuzzyModule.AddRule(FzAND(Target_Close, Fine), VeryPrecis);
+  m_aimFuzzyModule.AddRule(FzAND(Target_Close, Wounded), Precis);
+  m_aimFuzzyModule.AddRule(FzAND(Target_Close, SeverelyWounded), Precis);
+
+  m_aimFuzzyModule.AddRule(FzAND(Target_Medium, Healthy), VeryPrecis);
+  m_aimFuzzyModule.AddRule(FzAND(Target_Medium, Fine), VeryPrecis);
+  m_aimFuzzyModule.AddRule(FzAND(Target_Medium, Wounded), Precis);
+  m_aimFuzzyModule.AddRule(FzAND(Target_Medium, SeverelyWounded), Imprecis);
+
+  m_aimFuzzyModule.AddRule(FzAND(Target_Far, Healthy), VeryPrecis);
+  m_aimFuzzyModule.AddRule(FzAND(Target_Far, Fine), Precis);
+  m_aimFuzzyModule.AddRule(FzAND(Target_Far, Wounded), Imprecis);
+  m_aimFuzzyModule.AddRule(FzAND(Target_Far, SeverelyWounded), Imprecis);
+}
+
+Vector2D Raven_WeaponSystem::GetDeviation() const
+{
+	if (m_dLastPrecisionScore <= 25)
+		return Vector2D(rand() % 5, rand() % 5) ;
+	else if (m_dLastPrecisionScore <= 50)
+		return Vector2D(rand() % 4, rand() % 4) ;
+	else if (m_dLastPrecisionScore <= 75)
+		return Vector2D(rand() % 3, rand() % 3) ;
+	else
+		return Vector2D(rand() % 2 , rand() % 2) ;
+}
+
+void Raven_WeaponSystem::SetAccuracy()
+{
+	//fuzzify la distance et la santé du tireur pour obtenir la valeur requise pour calculer le vecteur de déviaiton
+	if (m_pOwner->GetTargetSys()->isTargetPresent())
+	{
+		double dist = Vec2DDistance(m_pOwner->Pos(), m_pOwner->GetTargetSys()->GetTarget()->Pos()) ;
+		m_aimFuzzyModule.Fuzzify("DistToTarget", dist);
+		m_aimFuzzyModule.Fuzzify("HealthLevel", m_pOwner->Health());
+
+		m_dLastPrecisionScore = m_aimFuzzyModule.DeFuzzify("Precision", FuzzyModule::max_av);
+	}
+	else
+		m_dLastPrecisionScore = 100 ;
+	//m_dLastPrecisionScore = rand() % 100 ;
 }
