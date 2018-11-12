@@ -1,0 +1,17 @@
+5  pts A) Passer de 3 à 5 pour le nombre de règles concernant le choix de l'arme "Rocket Launcher"
+          Donc, 2 ensembles à rajoutés (variable floue). Nb maximal de règle de 9 à 25.
+
+15 pts B) Modifier visée et tir pour mettre un comportement flou (insérer des règles)
+
+25 pts C) Permettre d'introduire un joueur humain qui pourra tirer et choisir armes avec le clavier.
+
+30 pts D) Faire le bot qui doit apprendre à tirer à partir du joueur humain. Prendre un RN existant.
+
+10 pts E) Insérer une stratégie de défense pour prendre un item (soin, munition). Ajouter des buts
+          pour ça.
+
+15 pts F) Composer une équipe de bot pour un affrontement de groupe. Un pnj qui meurt laisse ses items
+          dans une zone.
+
+bonus  G) éléments bonifiés s'ils sont fait.
+
