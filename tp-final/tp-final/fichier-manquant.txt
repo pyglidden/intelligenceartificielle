@@ -1,3 +1,0 @@
-Raven_NavModule.h
-Raven_GoalQ.h
-Raven_Goal.h
