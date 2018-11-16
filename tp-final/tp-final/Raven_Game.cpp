@@ -457,7 +457,8 @@ void Raven_Game::ClickRightMouseButton(POINTS p)
   if (m_pSelectedBot->isPossessed())
   {
     //if the shift key is pressed down at the same time as clicking then the
-    //movement command will be queued
+    //movement command will be queue
+
     if (IS_KEY_PRESSED('Q'))
     {
       m_pSelectedBot->GetBrain()->QueueGoal_MoveToPosition(POINTStoVector(p));
@@ -492,6 +493,36 @@ void Raven_Game::GetPlayerInput()const
   if (m_pSelectedBot && m_pSelectedBot->isPossessed())
   {
       m_pSelectedBot->RotateFacingTowardPosition(GetClientCursorPosition());
+
+	  Vector2D botPosition = PossessedBot()->Pos();
+	  const double botRadius = PossessedBot()->BRadius();
+	  Vector2D botFacing = PossessedBot()->Facing();
+	  
+	  if (IS_KEY_PRESSED('W'))
+	  {
+		  Vector2D forward = botPosition + botFacing;
+		  m_pSelectedBot->GetBrain()->QueueGoal_MoveToPosition(forward);
+	  }
+	  else if (IS_KEY_PRESSED('S'))
+	  {
+		  Vector2D backward = botPosition - botFacing;
+		  m_pSelectedBot->GetBrain()->QueueGoal_MoveToPosition(backward);
+	  }	  
+	  else if (IS_KEY_PRESSED('A'))
+	  {
+		  Vector2D left = botPosition - botFacing.Perp();
+		//Vector2D left = botPosition m_pSelectedBot->BRadius();
+		  m_pSelectedBot->GetBrain()->QueueGoal_MoveToPosition(left);
+		 
+	  }
+	  else if (IS_KEY_PRESSED('D'))
+	  {
+		  Vector2D right = botPosition + botFacing.Perp();
+		  m_pSelectedBot->GetBrain()->QueueGoal_MoveToPosition(right);
+
+	  }
+
+
    }
 }
 

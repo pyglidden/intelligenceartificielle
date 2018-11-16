@@ -131,7 +131,7 @@ LRESULT CALLBACK WindowProc (HWND   hwnd,
            g_pRaven->TogglePause();
 
            break;
-
+		
          case '1':
 
            g_pRaven->ChangeWeaponOfPossessedBot(type_blaster);
