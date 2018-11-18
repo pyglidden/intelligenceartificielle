@@ -164,7 +164,7 @@ void Raven_Game::Update()
       m_pGraveMarkers->AddGrave((*curBot)->Pos());
 
 	  //respawn seulement si on n'est pas en team battle
-	  if ( (*curBot)->GetTeam() != 0)
+	  if ( (*curBot)->GetTeam() == 0)
 	  {
 		//change its status to spawning
 		(*curBot)->SetSpawning();
