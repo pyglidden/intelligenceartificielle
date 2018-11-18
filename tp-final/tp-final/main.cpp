@@ -162,6 +162,23 @@ LRESULT CALLBACK WindowProc (HWND   hwnd,
 
            break;
 
+		 // dans le cas suivant, deux équipes de 5 bots sont créées. La game est "cleared",
+		 // puis la création des équipes commencent
+		 case 'T':
+
+			 if (g_pRaven->GetNumBots() == 0)
+			 {
+				 //création des équipes
+				 for (int i = 0 ; i < 5 ; i++)
+				 {
+					 g_pRaven->AddBots(1) ;
+					 g_pRaven->GetAllBots().back()->SetTeam(1) ;
+					 g_pRaven->AddBots(1) ;
+					 g_pRaven->GetAllBots().back()->SetTeam(2) ;
+				 }
+				 
+			 }
+			 break;
 
          case VK_UP:
 

@@ -39,6 +39,8 @@ private:
   enum Status{alive, dead, spawning};
 
 private:
+  // int contenant la valeur de l'équipe auquelle appartient le bot
+  int équipe ;
 
   //alive, dead or spawning?
   Status                             m_Status;
@@ -210,6 +212,8 @@ public:
   Raven_WeaponSystem* const          GetWeaponSys()const{return m_pWeaponSys;}
   Raven_SensoryMemory* const         GetSensoryMem()const{return m_pSensoryMem;}
 
+  int GetTeam() { return équipe; }
+  void SetTeam(int team) { équipe = team; }
 
 };
 

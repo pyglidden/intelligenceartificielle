@@ -37,6 +37,7 @@ class GraveMarkers;
 class Raven_Game
 {
 private:
+	
 
   //the current game map
   Raven_Map*                       m_pMap;
@@ -163,6 +164,7 @@ public:
   
   void  TagRaven_BotsWithinViewRange(BaseGameEntity* pRaven_Bot, double range)
               {TagNeighbors(pRaven_Bot, m_Bots, range);}  
+
 };
 
 

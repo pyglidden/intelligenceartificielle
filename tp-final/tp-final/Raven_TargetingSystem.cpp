@@ -30,13 +30,18 @@ void Raven_TargetingSystem::Update()
     //make sure the bot is alive and that it is not the owner
     if ((*curBot)->isAlive() && (*curBot != m_pOwner) )
     {
-      double dist = Vec2DDistanceSq((*curBot)->Pos(), m_pOwner->Pos());
+      //la condition suivante valide soit qu'il n'y a pas d'équipe (team =0)
+	  //ou que l'équipe de la cible potentielle diffère de celle de m_pOwner
+		if ((*curBot)->GetTeam() == 0 || (*curBot)->GetTeam() != m_pOwner->GetTeam())
+		{
+			double dist = Vec2DDistanceSq((*curBot)->Pos(), m_pOwner->Pos());
 
-      if (dist < ClosestDistSoFar)
-      {
-        ClosestDistSoFar = dist;
-        m_pCurrentTarget = *curBot;
-      }
+			if (dist < ClosestDistSoFar)
+			{
+				ClosestDistSoFar = dist;
+				m_pCurrentTarget = *curBot;
+			}
+		}
     }
   }
 }

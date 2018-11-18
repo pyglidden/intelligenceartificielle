@@ -163,8 +163,12 @@ void Raven_Game::Update()
       //create a grave
       m_pGraveMarkers->AddGrave((*curBot)->Pos());
 
-      //change its status to spawning
-      (*curBot)->SetSpawning();
+	  //respawn seulement si on n'est pas en team battle
+	  if ( (*curBot)->GetTeam() != 0)
+	  {
+		//change its status to spawning
+		(*curBot)->SetSpawning();
+	  }
     }
 
     //if this bot is alive update it.

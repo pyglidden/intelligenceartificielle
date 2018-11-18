@@ -81,7 +81,9 @@ Raven_Bot::Raven_Bot(Raven_Game* world,Vector2D pos):
                                         script->GetDouble("Bot_AimPersistance"));
 
   m_pSensoryMem = new Raven_SensoryMemory(this, script->GetDouble("Bot_MemorySpan"));
+  équipe = 0;
 }
+
 
 //-------------------------------- dtor ---------------------------------------
 //-----------------------------------------------------------------------------
@@ -487,7 +489,12 @@ void Raven_Bot::Render()
 
   if (isDead() || isSpawning()) return;
   
-  gdi->BluePen();
+  if (équipe == 0)
+	  gdi->BluePen();
+  else if (équipe == 1)
+	  gdi->OrangePen();
+  else if (équipe == 2)
+	  gdi->PurplePen();
   
   m_vecBotVBTrans = WorldTransform(m_vecBotVB,
                                    Pos(),
