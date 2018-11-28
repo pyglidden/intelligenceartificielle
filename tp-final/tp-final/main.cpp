@@ -171,6 +171,7 @@ LRESULT CALLBACK WindowProc (HWND   hwnd,
 				 //création des équipes
 				 for (int i = 0 ; i < 5 ; i++)
 				 {
+					 g_pRaven->IncrémenterCycle() ;
 					 g_pRaven->AddBots(1) ;
 					 g_pRaven->GetAllBots().back()->SetTeam(1) ;
 					 g_pRaven->AddBots(1) ;

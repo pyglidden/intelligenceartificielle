@@ -39,7 +39,8 @@ Raven_Game::Raven_Game():m_pSelectedBot(NULL),
                          m_bRemoveABot(false),
                          m_pMap(NULL),
                          m_pPathManager(NULL),
-                         m_pGraveMarkers(NULL)
+                         m_pGraveMarkers(NULL),
+						 i_teamCreationCycle(0)
 {
   //load in the default map
   LoadMap(script->GetString("StartMap"));
@@ -153,7 +154,7 @@ void Raven_Game::Update()
     //an unoccupied spawn point
     if ((*curBot)->isSpawning() && bSpawnPossible)
     {
-      bSpawnPossible = AttemptToAddBot(*curBot);
+			bSpawnPossible = AttemptToAddBot(*curBot);
     }
     
     //if this bot's status is 'dead' add a grave at its current location 
@@ -164,7 +165,7 @@ void Raven_Game::Update()
       m_pGraveMarkers->AddGrave((*curBot)->Pos());
 
 	  //respawn seulement si on n'est pas en team battle
-	  if ( (*curBot)->GetTeam() == 0)
+	  if ( (*curBot)->GetTeam() != 0)
 	  {
 		//change its status to spawning
 		(*curBot)->SetSpawning();
@@ -204,20 +205,35 @@ void Raven_Game::Update()
 //-----------------------------------------------------------------------------
 bool Raven_Game::AttemptToAddBot(Raven_Bot* pBot)
 {
+  int teamID = pBot->GetTeam() ;
+  int attempts ;
+  Vector2D pos ;
   //make sure there are some spawn points available
   if (m_pMap->GetSpawnPoints().size() <= 0)
   {
     ErrorBox("Map has no spawn points!"); return false;
   }
 
-  //we'll make the same number of attempts to spawn a bot this update as
-  //there are spawn points
-  int attempts = m_pMap->GetSpawnPoints().size();
+  
+  if (teamID == 0)
+  {
+	//we'll make the same number of attempts to spawn a bot this update as
+    //there are spawn points
+	attempts = m_pMap->GetSpawnPoints().size();
+  }
+  else
+  {
+	//juste une tentative pour un spawn d'équipe car un seul point de spawn par équipe
+	attempts = 1 ;
+  }
 
   while (--attempts >= 0)
   { 
-    //select a random spawn point
-    Vector2D pos = m_pMap->GetRandomSpawnPoint();
+    //select a random spawn point si pas d'équipe ou celui d'équipe
+	if (teamID ==0)
+		pos = m_pMap->GetRandomSpawnPoint();
+	else
+		pos = m_pMap->GetSpawnPoints().at(teamID--) ;
 
     //check to see if it's occupied
     std::list<Raven_Bot*>::const_iterator curBot = m_Bots.begin();
@@ -243,6 +259,39 @@ bool Raven_Game::AttemptToAddBot(Raven_Bot* pBot)
 
   return false;
 }
+
+//void Raven_Game::AddTeamBot(Raven_Bot* pBot, int teamID)
+//{
+//	if (m_pMap->GetSpawnPoints().size() <= 0 || m_pMap->GetSpawnPoints().size() < teamID)
+//	{
+//		ErrorBox("Not enough spawn points!");
+//	}
+//	else
+//	{
+//			//obtention de la position du spawnpoint de l'équipe
+//			Vector2D pos = m_pMap->GetSpawnPoints().at(teamID--) ;
+//			//calcul de l'offset selon le numéro du cycle de création d'équipes
+//			//Vector2D offset = GetSpawnOffset() ;
+//			
+//			//pos = pos + offset ;
+//			pBot->Spawn(pos) ;
+//	}
+//}
+//
+//Vector2D Raven_Game::GetSpawnOffset()
+//{
+//	if(i_teamCreationCycle == 2)
+//		return Vector2D(10,0) ;
+//	if(i_teamCreationCycle == 3)
+//		return Vector2D(-10,0) ;
+//	if(i_teamCreationCycle == 4)
+//		return Vector2D(0,10) ;
+//	if(i_teamCreationCycle == 5)
+//		return Vector2D(0,-10) ;
+//
+//	//pas d'offset pour le 1er bot créé
+//	return Vector2D(0,0) ;
+//}
 
 //-------------------------- AddBots --------------------------------------
 //

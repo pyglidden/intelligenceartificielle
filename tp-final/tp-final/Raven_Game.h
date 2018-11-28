@@ -38,6 +38,8 @@ class Raven_Game
 {
 private:
 	
+	//valeur servant à déterminer le offset pour spawn un bot d'équipe quand une équipe est créée
+	int i_teamCreationCycle ;
 
   //the current game map
   Raven_Map*                       m_pMap;
@@ -90,6 +92,9 @@ public:
   //the usual suspects
   void Render();
   void Update();
+
+  //augmente le nombre de cycles dans la création des membres de l'équipe
+  void IncrémenterCycle() { i_teamCreationCycle++ ; }
 
   //loads an environment from a file
   bool LoadMap(const std::string& FileName); 
