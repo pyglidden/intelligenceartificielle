@@ -37,6 +37,10 @@ double GetHealthGoal_Evaluator::CalculateDesirability(Raven_Bot* pBot)
     //bias the value according to the personality of the bot
     Desirability *= m_dCharacterBias;
 
+	if (pBot->GetTargetSys()->isTargetShootable() && Desirability < 0.6) {
+		return 0;
+	}
+
     return Desirability;
   }
 }
