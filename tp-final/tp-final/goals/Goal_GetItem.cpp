@@ -26,6 +26,10 @@ int ItemTypeToGoalType(int gt)
 
     return goal_get_railgun;
 
+  case type_gatling:
+
+	  return goal_get_gatling;
+
   case type_rocket_launcher:
 
     return goal_get_rocket_launcher;

@@ -595,6 +595,10 @@ void Raven_Game::ChangeWeaponOfPossessedBot(unsigned int weapon)const
       
       PossessedBot()->ChangeWeapon(type_blaster); return;
 
+	case type_gatling:
+
+		PossessedBot()->ChangeWeapon(type_gatling); return;
+
     case type_shotgun:
       
       PossessedBot()->ChangeWeapon(type_shotgun); return;

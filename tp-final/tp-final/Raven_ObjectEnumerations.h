@@ -18,7 +18,8 @@ enum
   type_blaster,
   type_obstacle,
   type_sliding_door,
-  type_door_trigger
+  type_door_trigger,
+  type_gatling
 };
 
 
@@ -56,6 +57,10 @@ inline std::string GetNameOfType(int w)
   case type_blaster:
     
     s = "Blaster"; break;
+
+  case type_gatling:
+
+	  s = "Gatling"; break;
 
   case type_rocket_launcher:
     
